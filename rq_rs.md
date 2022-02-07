@@ -35,15 +35,16 @@
     <%= f.submit :作成 %>
 <% end %>
 ```
-[![Image from Gyazo](https://i.gyazo.com/685989681d1062032a6bab679e09c49f.png)](https://gyazo.com/685989681d1062032a6bab679e09c49f)
+
+[![Image from Gyazo](https://i.gyazo.com/1150ed44f61b07522b060951898dc8b6.png)](https://gyazo.com/1150ed44f61b07522b060951898dc8b6)
 
 ---
 #### <span style="color: green; ">作成ボタンを押す</span>
-* routes.rb で method は POST 、 tasks コントローラー create アクション に案内される。
+* form_with は 裏で action="/tasks" , method="post" に入力したタスク名 name="task[name]" を送る。これは create アクションが対応する。
 * 以下の処理で tasks コントローラーの create アクション からデータベスに入力したタスク名(name)を保存する。
-    * 処理１：新しく作った taskモデルのカラムに入力したパラメーターの title のみ入れて、その後 @task に入れる。
+    * 処理１：新しく作った taskモデルのカラムに入力したパラメーターの name のみ入れて、その後 @task に入れる。
     * 処理２：@task をデータベースへ保存する。
-    * 処理３：タスクの詳細画面に遷移する
+    * 処理３：タスクの詳細画面にリダイレクトする
 ↓は tasks_controller.rb の createアクション
 ```rb
     def create
