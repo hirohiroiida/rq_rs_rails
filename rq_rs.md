@@ -23,7 +23,7 @@
 ---
 
 #### <span style="color: green; ">タスク名(name)を入力する</span>
-* @task にできた収納場所にviews/new.html.erbからform_withを使ってタスク名を入力する。
+* @task にできた収納場所にviews/new.html.erbからform_withが作ったinput要素にタスク名を入力する。
 ```erb
 <h1>新規投稿</h1>             
 <%= form_with model: @task do |f| %>
@@ -36,15 +36,20 @@
 <% end %>
 ```
 
-[![Image from Gyazo](https://i.gyazo.com/1150ed44f61b07522b060951898dc8b6.png)](https://gyazo.com/1150ed44f61b07522b060951898dc8b6)
+[![Image from Gyazo](https://i.gyazo.com/5307eb9d4ce56d70be9273661a2c6aa8.png)](https://gyazo.com/5307eb9d4ce56d70be9273661a2c6aa8)
 
 ---
 #### <span style="color: green; ">作成ボタンを押す</span>
-* form_with は 裏で action="/tasks" , method="post" に入力したタスク名 name="task[name]" を送る。これは create アクションが対応する。
+* form_with は html を作る際、裏でアクション、メソッド等をよしなに作る。このおかげで、 action="/tasks" , method="post" に入力したタスク名 name="task[name]"と name="commit" を送る。action="/tasks" , method="post" これは create アクションに送られる。
+
 * 以下の処理で tasks コントローラーの create アクション からデータベスに入力したタスク名(name)を保存する。
-    * 処理１：新しく作った taskモデルのカラムに入力したパラメーターの name のみ入れて、その後 @task に入れる。
+    * 処理１：新しく作った taskモデルのカラムに、 task_paramsメソッドで取得した情報入れた Taskオブジェクトを作り、 それを @task に入れる。
+    task_params は先ほど送られてきた情報の中で、task に関する name の情報だけを抜き取るメソッド。
+
+
     * 処理２：@task をデータベースへ保存する。
     * 処理３：タスクの詳細画面にリダイレクトする
+
 ↓は tasks_controller.rb の createアクション
 ```rb
     def create
@@ -67,7 +72,7 @@ index.html.erb ファイル ↓
     <br>
 <% end %>
 ```
-name=tasks[name] のようにパラメーターがnameに入っていることを確認できる
+
 [![Image from Gyazo](https://i.gyazo.com/a8d7608be9992b31d347711e0f8e4e01.png)](https://gyazo.com/a8d7608be9992b31d347711e0f8e4e01)
 
 ---
@@ -78,5 +83,5 @@ name=tasks[name] のようにパラメーターがnameに入っていること�
 [![Image from Gyazo](https://i.gyazo.com/ad51ddec87f94ec435000f066cf1f2e3.png)](https://gyazo.com/ad51ddec87f94ec435000f066cf1f2e3)
 
 
-## 感想
+# 感想
 今まで独学で勉強してきたことは、細かいところを把握せずに勉強していたので、今回の課題はすごく自分にとって勉強になった。
