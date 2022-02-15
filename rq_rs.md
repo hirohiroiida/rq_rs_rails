@@ -11,19 +11,17 @@
 ## リクエストからレスポンスまでの流れについて(POST編)
 
 #### <span style="color: green; ">新規作成ページを表示する</span>
-上で書いた GET編の流れで、/tasks/new の URL からビューを表示する。ただし、tasks_controller.rb のnew action内でTaskモデルのカラム（データの収納場所）を作成し、@task に入れる。
+1. ユーザーがHTTPリクエスト（メソッド：GET、URL：/tasks/new）をサーバに送ってくる。
+2. GET、/tasks/newの情報を基にroutes.rbからコントローラの new actionを実行する。
+3. インスタンス変数@taskに空のTaskオブジェクトが代入される。
+4. views/new.html.erb に書かれている form_with が@taskを元にモデルオプションで フォームの要素の部分をよしなに出力する。そのおかげで新規作成画面の html が作成される。
 
 ```rb
     def new            # tasks_controller.rb ファイル内
         @task = Task.new
     end
 ```
-[![Image from Gyazo](https://i.gyazo.com/7b6f64e3f7a8209614bce5caf858259b.png)](https://gyazo.com/7b6f64e3f7a8209614bce5caf858259b)
 
----
-
-#### <span style="color: green; ">タスク名(name)を入力する</span>
-* @task にできた収納場所にviews/new.html.erbからform_withが作ったinput要素にタスク名を入力する。
 ```erb
 <h1>新規投稿</h1>             
 <%= form_with model: @task do |f| %>
@@ -36,51 +34,55 @@
 <% end %>
 ```
 
+[![Image from Gyazo](https://i.gyazo.com/7b6f64e3f7a8209614bce5caf858259b.png)](https://gyazo.com/7b6f64e3f7a8209614bce5caf858259b)
+
+---
+
+#### <span style="color: green; ">タスク名(name)を入力する</span>
+5. ユーザーが新規作成画面でタスク名を入力する。
+
+
 [![Image from Gyazo](https://i.gyazo.com/5307eb9d4ce56d70be9273661a2c6aa8.png)](https://gyazo.com/5307eb9d4ce56d70be9273661a2c6aa8)
 
 ---
 #### <span style="color: green; ">作成ボタンを押す</span>
-* form_with は html を作る際、裏でアクション、メソッド等をよしなに作る。このおかげで、 action="/tasks" , method="post" に入力したタスク名 name="task[name]"と name="commit" を送る。action="/tasks" , method="post" これは create アクションに送られる。
+6. form_withでよしなにできたinput要素に入力した情報は、これまたよしなにできた action="/tasks"、method="post"により 入力情報を/tasksというURLにPOSTのリクエストを送る。
+7. リクエストは POST、/tasksの情報を基にroutes.rbからコントローラの create actionを実行する。
 
-* 以下の処理で tasks コントローラーの create アクション からデータベスに入力したタスク名(name)を保存する。
-    * 処理１：新しく作った taskモデルのカラムに、 task_paramsメソッドで取得した情報入れた Taskオブジェクトを作り、 それを @task に入れる。
-    task_params は先ほど送られてきた情報の中で、task に関する name の情報だけを抜き取るメソッド。
+以下の処理で tasks コントローラーの create アクション からデータベスに入力したタスク名(name)を保存する。
+
+8. 処理１：新しく作った taskモデルのカラムに、 task_paramsメソッドで取得した情報入れた Taskオブジェクトを作り、 それを @task に入れる。
+task_params は先ほど送られてきた情報の中で、task に関する name の情報だけを抜き取るメソッド。
 
 
-    * 処理２：@task をデータベースへ保存する。
-    * 処理３：タスクの詳細画面にリダイレクトする
+9. 処理２：@task をデータベースへ保存する。
+10. 処理３：タスクの詳細画面にリダイレクトする
 
 ↓は tasks_controller.rb の createアクション
 ```rb
     def create
         @task = Task.new(task_params)           # 処理 1
         @task.save                              # 処理 2
-        redirect_to tasks_path                  # 処理 3
+        redirect_to "/tasks/#{@task.id}"        # 処理 3
     end
     
     def task_params
         params.require(:task).permit(:name)    # 処理 1
     end
 ```
-[![Image from Gyazo](https://i.gyazo.com/cbcbf096232f0184b74375530ff8c36c.png)](https://gyazo.com/cbcbf096232f0184b74375530ff8c36c)
-index.html.erb ファイル ↓
-```erb
-<h2>投稿一覧</h2>
-<h3>タスク名</h3>
-<% @tasks.each do |task| %>
-    <%= task.name %>
-    <br>
-<% end %>
-```
-
-[![Image from Gyazo](https://i.gyazo.com/a8d7608be9992b31d347711e0f8e4e01.png)](https://gyazo.com/a8d7608be9992b31d347711e0f8e4e01)
-
----
 
 #### <span style="color: green; ">タスクの詳細画面に遷移する</span>
-* redirect_to tasks_path か URLに/tasks を打ち込み、GET編同様、タスクの詳細画面に遷移する。
+* リダイレクトにより、タスクの詳細画面に遷移する。
 
-[![Image from Gyazo](https://i.gyazo.com/ad51ddec87f94ec435000f066cf1f2e3.png)](https://gyazo.com/ad51ddec87f94ec435000f066cf1f2e3)
+show.html.erb ファイル ↓
+```erb
+<h1>詳細画面</h1>
+
+<%= @task.name %>
+```
+[![Image from Gyazo](https://i.gyazo.com/2b68dde6d8790f0e64a9082ab6d52c11.png)](https://gyazo.com/2b68dde6d8790f0e64a9082ab6d52c11)
+
+[![Image from Gyazo](https://i.gyazo.com/9635c9b13cd45a885d96e8d4ae522629.png)](https://gyazo.com/9635c9b13cd45a885d96e8d4ae522629)
 
 
 # 感想
